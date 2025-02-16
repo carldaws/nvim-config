@@ -28,27 +28,46 @@ vim.opt.relativenumber = true
 vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
+vim.opt.hlsearch = false
+vim.opt.incsearch = true
 
 -- ===============================
 -- Plugin Setup (lazy.nvim)
 -- ===============================
 require("lazy").setup({
   spec = {
-    { "folke/tokyonight.nvim", lazy = false, priority = 1000, opts = {}},
+    { "scottmckendry/cyberdream.nvim", lazy = false, priority = 1000, opts = {}},
     { "hrsh7th/nvim-cmp" },
     { "hrsh7th/cmp-buffer" },
     { "williamboman/mason.nvim" },
     { "williamboman/mason-lspconfig.nvim" },
     { "neovim/nvim-lspconfig" },
     { "hrsh7th/cmp-nvim-lsp" },
-    { "ibhagwan/fzf-lua", dependencies = { "nvim-tree/nvim-web-devicons" }, opts = {}}
+    { "ibhagwan/fzf-lua", dependencies = { "nvim-tree/nvim-web-devicons" }, opts = {}},
+    { "nvim-lualine/lualine.nvim", dependencies = { "nvim-tree/nvim-web-devicons" }},
+    { "stevearc/oil.nvim", lazy = false, dependencies = { "nvim-tree/nvim-web-devicons" }}
   },
-  install = { colorscheme = { "habamax" } },
-  checker = { enabled = true },
+  install = { colorscheme = { "dracula" }},
+  checker = { enabled = true }
 })
 
--- Apply colorscheme
-vim.cmd[[colorscheme tokyonight-storm]]
+-- ===============================
+-- Styling
+-- ===============================
+require("cyberdream").setup({
+	transparent = true,
+})
+
+vim.cmd("colorscheme cyberdream")
+require('lualine').setup({})
+
+-- ==============================
+-- Navigation
+-- ==============================
+require("oil").setup({ default_file_explorer = true })
+vim.keymap.set("n", "<leader>o", "<cmd>Oil<CR>")
+vim.keymap.set("n", "<leader>g", require("fzf-lua").live_grep, { noremap = true, silent = true })
+vim.keymap.set("n", "<leader>f", require("fzf-lua").files, { noremap = true, silent = true })
 
 -- ===============================
 -- Completion Setup (nvim-cmp)
@@ -90,7 +109,6 @@ for _, server in ipairs(servers) do
   })
 end
 
--- Lua-specific LSP configuration
 lspconfig.lua_ls.setup {
   on_init = function(client)
     if client.workspace_folders then
@@ -113,14 +131,11 @@ lspconfig.lua_ls.setup {
   settings = { Lua = {} }
 }
 
--- Additional LSP configurations
 lspconfig.gopls.setup({})
 lspconfig.ruby_lsp.setup({
-  cmd = { "rbenv", "exec", "ruby-lsp" }
+	cmd = { "mise", "exec", "ruby", "--", "ruby-lsp" },
 })
 lspconfig.rubocop.setup({
-  cmd = { "rbenv", "exec", "rubocop", "--lsp" }
+	cmd = { "mise", "exec", "ruby", "--", "rubocop", "--lsp" },
 })
 
--- Grep keymap
-vim.keymap.set("n", "<leader>g", require("fzf-lua").live_grep, { noremap = true, silent = true })
