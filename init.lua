@@ -88,14 +88,14 @@ require("oil").setup({ default_file_explorer = true })
 vim.keymap.set("n", "<leader>o", "<cmd>Oil<CR>")
 vim.keymap.set("n", "<leader>g", require("fzf-lua").live_grep, { noremap = true, silent = true })
 vim.keymap.set("n", "<leader>f", require("fzf-lua").files, { noremap = true, silent = true })
-vim.keymap.set("n", "gb", "<cmd>BufferLinePick<CR>")
+vim.keymap.set("n", "gt", "<cmd>BufferLinePick<CR>")
 vim.keymap.set("n", "<leader>x", "<cmd>bd<CR>")
 vim.keymap.set("n", "<leader>c", '"+y')
 vim.keymap.set("v", "<leader>c", '"+y')
 vim.keymap.set("n", "<leader>v", '"+p')
 vim.keymap.set("v", "<leader>v", '"+p')
 vim.keymap.set("i", "<leader>v", '<C-r>+')
-vim.keymap.set("n", "bb", "<cmd>Git blame<CR>")
+vim.keymap.set("n", "gb", "<cmd>Git blame<CR>")
 
 -- ===============================
 -- Completion Setup (nvim-cmp)
@@ -120,7 +120,7 @@ cmp.setup {
 require("mason").setup()
 
 require("mason-lspconfig").setup({
-  ensure_installed = { "lua_ls", "gopls", "ruby_lsp", "rubocop" },
+  ensure_installed = { "lua_ls", "gopls", "ruby_lsp", "rubocop", "ts_ls" },
   automatic_installation = true
 })
 
@@ -129,7 +129,7 @@ require("mason-lspconfig").setup({
 -- ===============================
 local lspconfig = require("lspconfig")
 local capabilities = require("cmp_nvim_lsp").default_capabilities()
-local servers = { "lua_ls", "gopls", "ruby_lsp", "rubocop" }
+local servers = { "lua_ls", "gopls", "ruby_lsp", "rubocop", "ts_ls" }
 
 local bind_keys = function(_, bufnr)
     vim.keymap.set("n", "gd", require("fzf-lua").lsp_definitions, { noremap = true, silent = true, buffer = bufnr })
@@ -172,6 +172,7 @@ lspconfig.ruby_lsp.setup({
 lspconfig.rubocop.setup({
     cmd = { "mise", "exec", "ruby", "--", "rubocop", "--lsp" },
 })
+lspconfig.ts_ls.setup({})
 
 -- ===============================
 -- Treesitter Setup
