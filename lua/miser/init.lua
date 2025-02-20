@@ -18,8 +18,8 @@ local install_mappings = {
 }
 
 M.config = {
-    ensure_installed = {}, -- LSPs to install on startup
-    automatic_installation = true, -- Install LSPs when opening a file
+	ensure_installed = {},         -- LSPs to install on startup
+	automatic_installation = true, -- Install LSPs when opening a file
 }
 
 
@@ -31,56 +31,56 @@ M.setup = function(opts)
 	end
 
 	if M.config.auto_install then
-        vim.api.nvim_create_autocmd("BufReadPost", {
-            callback = function()
-                local filetype = vim.bo.filetype
-                for lsp, lang in pairs(language_mappings) do
-                    if filetype == lang then
-                        M.ensure_installed(lsp)
-                    end
-                end
-            end
-        })
-    end
+		vim.api.nvim_create_autocmd("BufReadPost", {
+			callback = function()
+				local filetype = vim.bo.filetype
+				for lsp, lang in pairs(language_mappings) do
+					if filetype == lang then
+						M.ensure_installed(lsp)
+					end
+				end
+			end
+		})
+	end
 end
 
 M.setup_lsp = function(lsp, user_opts)
-    local ok, lspconfig = pcall(require, "lspconfig")
-    if not ok then
-        vim.notify("Miser: Missing dependency 'nvim-lspconfig'. Please install it first!", vim.log.levels.ERROR)
-        return
-    end
+	local ok, lspconfig = pcall(require, "lspconfig")
+	if not ok then
+		vim.notify("Miser: Missing dependency 'nvim-lspconfig'. Please install it first!", vim.log.levels.ERROR)
+		return
+	end
 
-    local language = language_mappings[lsp]
+	local language = language_mappings[lsp]
 
-    if not lspconfig[lsp] then
-        vim.notify("Miser: No LSP config found for '" .. lsp .. "'", vim.log.levels.ERROR)
-        return
-    end
+	if not lspconfig[lsp] then
+		vim.notify("Miser: No LSP config found for '" .. lsp .. "'", vim.log.levels.ERROR)
+		return
+	end
 
-    if not language then
-        vim.notify("Miser: Unknown language for LSP '" .. lsp .. "'", vim.log.levels.ERROR)
-        return
-    end
+	if not language then
+		vim.notify("Miser: Unknown language for LSP '" .. lsp .. "'", vim.log.levels.ERROR)
+		return
+	end
 
-    M.install(lsp)
+	M.install(lsp)
 
-    -- Generate the correct mise-based command
-    local default_cmd = lspconfig[lsp].document_config.default_config.cmd or { package_mappings[lsp] }
+	-- Generate the correct mise-based command
+	local default_cmd = lspconfig[lsp].document_config.default_config.cmd or { package_mappings[lsp] }
 	local wrapped_cmd = { "mise", "exec", language, "--" }
 	for _, v in ipairs(default_cmd) do
 		table.insert(wrapped_cmd, v)
 	end
 
-    -- Merge user-provided options with Miser's defaults
-    local opts = vim.tbl_deep_extend("force", {
-        cmd = default_cmd,
-    }, user_opts or {})
+	-- Merge user-provided options with Miser's defaults
+	local opts = vim.tbl_deep_extend("force", {
+		cmd = default_cmd,
+	}, user_opts or {})
 
-    -- Set up the LSP
-    lspconfig[lsp].setup(opts)
+	-- Set up the LSP
+	lspconfig[lsp].setup(opts)
 
-    vim.notify("Miser: " .. lsp .. " set up successfully!", vim.log.levels.INFO)
+	vim.notify("Miser: " .. lsp .. " set up successfully!", vim.log.levels.INFO)
 end
 
 M.install = function(lsp)
@@ -100,13 +100,13 @@ M.install = function(lsp)
 	if current_version == "" or current_version:match("not found") then
 		vim.notify(
 			"Miser: No version of "
-				.. language
-				.. " is set in Mise.\n"
-				.. "Run: mise use "
-				.. language
-				.. "@<version> or mise use --global "
-				.. language
-				.. "@<version>",
+			.. language
+			.. " is set in Mise.\n"
+			.. "Run: mise use "
+			.. language
+			.. "@<version> or mise use --global "
+			.. language
+			.. "@<version>",
 			vim.log.levels.ERROR
 		)
 		return
@@ -142,13 +142,13 @@ M.install = function(lsp)
 end
 
 setmetatable(M, {
-    __index = function(_, key)
-        return {
-            setup = function(user_opts)
-                M.setup_lsp(key, user_opts)
-            end
-        }
-    end
+	__index = function(_, key)
+		return {
+			setup = function(user_opts)
+				M.setup_lsp(key, user_opts)
+			end
+		}
+	end
 })
 
 _G.MiserInstall = M.install
