@@ -9,7 +9,7 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 	if vim.v.shell_error ~= 0 then
 		vim.api.nvim_echo({
 			{ "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-			{ out, "WarningMsg" },
+			{ out,                            "WarningMsg" },
 			{ "\nPress any key to exit..." },
 		}, true, {})
 		vim.fn.getchar()
@@ -37,22 +37,18 @@ vim.opt.termguicolors = true
 -- ===============================
 require("lazy").setup({
 	spec = {
-		{ "catppuccin/nvim", name = "catppuccin", priority = 1000 },
+		{ "catppuccin/nvim",                 name = "catppuccin",                              priority = 1000 },
 		{ "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" },
 		{ "hrsh7th/nvim-cmp" },
 		{ "hrsh7th/cmp-buffer" },
-		{ "williamboman/mason.nvim" },
-		{ "williamboman/mason-lspconfig.nvim" },
 		{ "neovim/nvim-lspconfig" },
 		{ "hrsh7th/cmp-nvim-lsp" },
-		{ "ibhagwan/fzf-lua", dependencies = { "nvim-tree/nvim-web-devicons" }, opts = {} },
-		{ "nvim-lualine/lualine.nvim", dependencies = { "nvim-tree/nvim-web-devicons" } },
-		{ "akinsho/bufferline.nvim", version = "*", dependencies = "nvim-tree/nvim-web-devicons" },
-		{ "stevearc/oil.nvim", lazy = false, dependencies = { "nvim-tree/nvim-web-devicons" } },
-		{ "folke/noice.nvim", event = "VeryLazy", dependencies = { "MunifTanjim/nui.nvim", "rcarriga/nvim-notify" } },
+		{ "ibhagwan/fzf-lua",                dependencies = { "nvim-tree/nvim-web-devicons" }, opts = {} },
+		{ "nvim-lualine/lualine.nvim",       dependencies = { "nvim-tree/nvim-web-devicons" } },
+		{ "akinsho/bufferline.nvim",         version = "*",                                    dependencies = "nvim-tree/nvim-web-devicons" },
+		{ "stevearc/oil.nvim",               lazy = false,                                     dependencies = { "nvim-tree/nvim-web-devicons" } },
+		{ "folke/noice.nvim",                event = "VeryLazy",                               dependencies = { "MunifTanjim/nui.nvim", "rcarriga/nvim-notify" } },
 		{ "tpope/vim-fugitive" },
-		{ "WhoIsSethDaniel/mason-tool-installer" },
-		{ "stevearc/conform.nvim" },
 	},
 	install = { colorscheme = { "dracula" } },
 	checker = { enabled = true },
@@ -75,11 +71,11 @@ require("noice").setup({
 	},
 	-- you can enable a preset for easier configuration
 	presets = {
-		bottom_search = true, -- use a classic bottom cmdline for search
+		bottom_search = true,   -- use a classic bottom cmdline for search
 		command_palette = true, -- position the cmdline and popupmenu together
 		long_message_to_split = true, -- long messages will be sent to a split
-		inc_rename = false, -- enables an input dialog for inc-rename.nvim
-		lsp_doc_border = true, -- add a border to hover docs and signature help
+		inc_rename = false,     -- enables an input dialog for inc-rename.nvim
+		lsp_doc_border = true,  -- add a border to hover docs and signature help
 	},
 })
 
@@ -117,27 +113,21 @@ cmp.setup({
 })
 
 -- ===============================
--- Mason Setup
+-- Miser Setup
 -- ===============================
-require("mason").setup()
-
-require("mason-lspconfig").setup({
-	ensure_installed = { "lua_ls", "gopls", "ruby_lsp", "rubocop", "ts_ls" },
+local miser = require("miser")
+local servers = { "lua_ls", "gopls", "ruby_lsp", "rubocop", "ts_ls" } -- what to do about prettier and others?
+miser.setup({
+	ensure_installed = servers,
 	automatic_installation = true,
-})
-
-require("mason-tool-installer").setup({
-	ensure_installed = { "stylua", "prettier" },
 })
 
 -- ===============================
 -- LSP Setup
 -- ===============================
-local lspconfig = require("lspconfig")
 local capabilities = require("cmp_nvim_lsp").default_capabilities()
-local servers = { "lua_ls", "gopls", "ruby_lsp", "rubocop", "ts_ls" }
 
-local lsp_format_on_save = function(client, bufnr)
+local format_on_save = function(client, bufnr)
 	if client.supports_method("textDocument/formatting") then
 		vim.api.nvim_create_autocmd("BufWritePre", {
 			buffer = bufnr,
@@ -149,21 +139,21 @@ local lsp_format_on_save = function(client, bufnr)
 end
 
 local on_attach = function(client, bufnr)
-	-- Bind LSP-related keymaps
 	vim.keymap.set("n", "gd", require("fzf-lua").lsp_definitions, { noremap = true, silent = true, buffer = bufnr })
 	vim.keymap.set("n", "gr", require("fzf-lua").lsp_references, { noremap = true, silent = true, buffer = bufnr })
-
-	-- Enable autoformatting on save
-	lsp_format_on_save(client, bufnr)
+	format_on_save(client, bufnr)
 end
 
 for _, server in ipairs(servers) do
-	lspconfig[server].setup({
-		on_attach = on_attach, -- Correctly pass the function
+	miser[server].setup({
+		on_attach = on_attach,
 		capabilities = capabilities,
 	})
 end
-lspconfig.lua_ls.setup({
+
+miser.lua_ls.setup({
+	on_attach = on_attach,
+	capabilities = capabilities,
 	on_init = function(client)
 		if client.workspace_folders then
 			local path = client.workspace_folders[1].name
@@ -187,31 +177,7 @@ lspconfig.lua_ls.setup({
 	end,
 	settings = { Lua = {} },
 })
-lspconfig.gopls.setup({})
-lspconfig.ruby_lsp.setup({
-	cmd = { "mise", "exec", "ruby", "--", "ruby-lsp" },
-})
-lspconfig.rubocop.setup({
-	cmd = { "mise", "exec", "ruby", "--", "rubocop", "--lsp" },
-})
-lspconfig.ts_ls.setup({})
 
-require("conform").setup({
-	formatters = {
-		rubocop = {
-			command = "mise exec ruby -- rubocop",
-		},
-	},
-	formatters_by_ft = {
-		lua = { "stylua" },
-		javascript = { "prettier" },
-		ruby = { "rubocop" },
-	},
-	format_on_save = {
-		timeout_ms = 5000,
-		lsp_fallback = true,
-	},
-})
 -- ===============================
 -- Treesitter Setup
 -- ===============================
