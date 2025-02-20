@@ -4,24 +4,26 @@ local package_mappings = {
 	["lua_ls"] = "lua_ls",
 	["ruby_lsp"] = "ruby-lsp",
 	["rubocop"] = "rubocop",
+	["gopls"] = "golang.org/x/tools/gopls@latest"
 }
 
 local language_mappings = {
 	["lua_ls"] = "lua",
 	["ruby_lsp"] = "ruby",
 	["rubocop"] = "ruby",
+	["gopls"] = "go"
 }
 
 local install_mappings = {
 	["lua"] = "luarocks install",
 	["ruby"] = "gem install",
+	["go"] = "go install",
 }
 
 M.config = {
-	ensure_installed = {},         -- LSPs to install on startup
+	ensure_installed = {},      -- LSPs to install on startup
 	automatic_installation = true, -- Install LSPs when opening a file
 }
-
 
 M.setup = function(opts)
 	M.config = vim.tbl_deep_extend("force", M.config, opts or {})
