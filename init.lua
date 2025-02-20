@@ -127,7 +127,7 @@ require("mason-lspconfig").setup({
 })
 
 require("mason-tool-installer").setup({
-	ensure_installed = { "stylua" },
+	ensure_installed = { "stylua", "prettier" },
 })
 
 -- ===============================
@@ -204,6 +204,7 @@ require("conform").setup({
 	},
 	formatters_by_ft = {
 		lua = { "stylua" },
+		javascript = { "prettier" },
 		ruby = { "rubocop" },
 	},
 	format_on_save = {
