@@ -92,7 +92,6 @@ vim.keymap.set("n", "<leader>c", '"+y')
 vim.keymap.set("v", "<leader>c", '"+y')
 vim.keymap.set("n", "<leader>v", '"+p')
 vim.keymap.set("v", "<leader>v", '"+p')
-vim.keymap.set("i", "<leader>v", "<C-r>+")
 vim.keymap.set("n", "gb", "<cmd>Git blame<CR>")
 
 -- ===============================
@@ -116,15 +115,16 @@ cmp.setup({
 -- Miser Setup
 -- ===============================
 local miser = require("miser")
-local servers = { "lua_ls", "gopls", "ruby_lsp", "rubocop", "ts_ls" } -- what to do about prettier and others?
+
 miser.setup({
-	ensure_installed = servers,
-	automatic_installation = true,
+	tools = { "lua-language-server", "gopls", "ruby-lsp", "rubocop", "typescript-language-server", "prettier", "eslint" },
 })
 
 -- ===============================
 -- LSP Setup
 -- ===============================
+local lspconfig = require("lspconfig")
+local servers = { "lua_ls", "gopls", "ruby_lsp", "rubocop", "ts_ls" }
 local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
 local format_on_save = function(client, bufnr)
@@ -145,13 +145,13 @@ local on_attach = function(client, bufnr)
 end
 
 for _, server in ipairs(servers) do
-	miser[server].setup({
+	lspconfig[server].setup({
 		on_attach = on_attach,
 		capabilities = capabilities,
 	})
 end
 
-miser.lua_ls.setup({
+lspconfig.lua_ls.setup({
 	on_attach = on_attach,
 	capabilities = capabilities,
 	on_init = function(client)
