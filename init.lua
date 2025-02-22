@@ -49,6 +49,7 @@ require("lazy").setup({
 		{ "stevearc/oil.nvim",               lazy = false,                                     dependencies = { "nvim-tree/nvim-web-devicons" } },
 		{ "folke/noice.nvim",                event = "VeryLazy",                               dependencies = { "MunifTanjim/nui.nvim", "rcarriga/nvim-notify" } },
 		{ "tpope/vim-fugitive" },
+		{ "carldaws/miser" }
 	},
 	install = { colorscheme = { "dracula" } },
 	checker = { enabled = true },
