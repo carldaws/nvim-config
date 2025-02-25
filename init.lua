@@ -39,17 +39,13 @@ require("lazy").setup({
 	spec = {
 		{ "catppuccin/nvim",                 name = "catppuccin",                              priority = 1000 },
 		{ "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" },
-		{ "hrsh7th/nvim-cmp" },
-		{ "hrsh7th/cmp-buffer" },
 		{ "neovim/nvim-lspconfig" },
-		{ "hrsh7th/cmp-nvim-lsp" },
 		{ "ibhagwan/fzf-lua",                dependencies = { "nvim-tree/nvim-web-devicons" }, opts = {} },
 		{ "nvim-lualine/lualine.nvim",       dependencies = { "nvim-tree/nvim-web-devicons" } },
 		{ "akinsho/bufferline.nvim",         version = "*",                                    dependencies = "nvim-tree/nvim-web-devicons" },
 		{ "stevearc/oil.nvim",               lazy = false,                                     dependencies = { "nvim-tree/nvim-web-devicons" } },
 		{ "folke/noice.nvim",                event = "VeryLazy",                               dependencies = { "MunifTanjim/nui.nvim", "rcarriga/nvim-notify" } },
-		{ "tpope/vim-fugitive" },
-		{ "carldaws/miser" }
+		{ "carldaws/miser.nvim" }
 	},
 	install = { colorscheme = { "dracula" } },
 	checker = { enabled = true },
@@ -67,7 +63,6 @@ require("noice").setup({
 		override = {
 			["vim.lsp.util.convert_input_to_markdown_lines"] = true,
 			["vim.lsp.util.stylize_markdown"] = true,
-			["cmp.entry.get_documentation"] = true, -- requires hrsh7th/nvim-cmp
 		},
 	},
 	-- you can enable a preset for easier configuration
@@ -84,8 +79,7 @@ require("noice").setup({
 -- Navigation
 -- ==============================
 require("oil").setup({ default_file_explorer = true })
-vim.keymap.set("n", "<leader>o", "<cmd>Oil<CR>")
-vim.keymap.set("n", "<leader>g", require("fzf-lua").live_grep, { noremap = true, silent = true })
+vim.keymap.set("n", "-", "<cmd>Oil<CR>")
 vim.keymap.set("n", "<leader>f", require("fzf-lua").files, { noremap = true, silent = true })
 vim.keymap.set("n", "gt", "<cmd>BufferLinePick<CR>")
 vim.keymap.set("n", "<leader>x", "<cmd>bd<CR>")
@@ -93,24 +87,6 @@ vim.keymap.set("n", "<leader>c", '"+y')
 vim.keymap.set("v", "<leader>c", '"+y')
 vim.keymap.set("n", "<leader>v", '"+p')
 vim.keymap.set("v", "<leader>v", '"+p')
-vim.keymap.set("n", "gb", "<cmd>Git blame<CR>")
-
--- ===============================
--- Completion Setup (nvim-cmp)
--- ===============================
-local cmp = require("cmp")
-cmp.setup({
-	mapping = cmp.mapping.preset.insert({
-		["<C-Space>"] = cmp.mapping.complete(),
-		["<CR>"] = cmp.mapping.confirm({ select = true }),
-		["<Tab>"] = cmp.mapping.select_next_item(),
-		["<S-Tab>"] = cmp.mapping.select_prev_item(),
-	}),
-	sources = {
-		{ name = "nvim_lsp" },
-		{ name = "buffer" },
-	},
-})
 
 -- ===============================
 -- Miser Setup
@@ -118,15 +94,14 @@ cmp.setup({
 local miser = require("miser")
 
 miser.setup({
-	tools = { "lua-language-server", "gopls", "ruby-lsp", "rubocop", "typescript-language-server", "prettier", "eslint" },
+	tools = { "lua-language-server", "ruby-lsp", "rubocop", "gopls" },
 })
 
 -- ===============================
 -- LSP Setup
 -- ===============================
 local lspconfig = require("lspconfig")
-local servers = { "lua_ls", "gopls", "ruby_lsp", "rubocop", "ts_ls" }
-local capabilities = require("cmp_nvim_lsp").default_capabilities()
+local servers = { "lua_ls", "gopls", "ruby_lsp", "rubocop" }
 
 local format_on_save = function(client, bufnr)
 	if client.supports_method("textDocument/formatting") then
@@ -148,13 +123,11 @@ end
 for _, server in ipairs(servers) do
 	lspconfig[server].setup({
 		on_attach = on_attach,
-		capabilities = capabilities,
 	})
 end
 
 lspconfig.lua_ls.setup({
 	on_attach = on_attach,
-	capabilities = capabilities,
 	on_init = function(client)
 		if client.workspace_folders then
 			local path = client.workspace_folders[1].name
