@@ -94,14 +94,14 @@ vim.keymap.set("v", "<leader>v", '"+p')
 local miser = require("miser")
 
 miser.setup({
-	tools = { "lua-language-server", "ruby-lsp", "rubocop", "gopls" },
+	tools = { "lua-language-server", "ruby-lsp", "rubocop", "gopls", "zls" },
 })
 
 -- ===============================
 -- LSP Setup
 -- ===============================
 local lspconfig = require("lspconfig")
-local servers = { "lua_ls", "gopls", "ruby_lsp", "rubocop" }
+local servers = { "lua_ls", "gopls", "ruby_lsp", "rubocop", "zls" }
 
 local format_on_save = function(client, bufnr)
 	if client.supports_method("textDocument/formatting") then
