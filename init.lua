@@ -45,7 +45,8 @@ require("lazy").setup({
 		{ "akinsho/bufferline.nvim",         version = "*",                                    dependencies = "nvim-tree/nvim-web-devicons" },
 		{ "stevearc/oil.nvim",               lazy = false,                                     dependencies = { "nvim-tree/nvim-web-devicons" } },
 		{ "folke/noice.nvim",                event = "VeryLazy",                               dependencies = { "MunifTanjim/nui.nvim", "rcarriga/nvim-notify" } },
-		{ "carldaws/miser.nvim" }
+		{ "carldaws/miser.nvim" },
+		{ "carldaws/flotsam.nvim" }
 	},
 	install = { colorscheme = { "dracula" } },
 	checker = { enabled = true },
@@ -81,12 +82,20 @@ require("noice").setup({
 require("oil").setup({ default_file_explorer = true })
 vim.keymap.set("n", "-", "<cmd>Oil<CR>")
 vim.keymap.set("n", "<leader>f", require("fzf-lua").files, { noremap = true, silent = true })
+vim.keymap.set("n", "<leader>g", require("fzf-lua").live_grep, { noremap = true, silent = true })
 vim.keymap.set("n", "gt", "<cmd>BufferLinePick<CR>")
 vim.keymap.set("n", "<leader>x", "<cmd>bd<CR>")
 vim.keymap.set("n", "<leader>c", '"+y')
 vim.keymap.set("v", "<leader>c", '"+y')
 vim.keymap.set("n", "<leader>v", '"+p')
 vim.keymap.set("v", "<leader>v", '"+p')
+
+require("flotsam").setup({
+	mappings = {
+		{ keymap = "lg", command = "lazygit" },
+		{ keymap = "rc", command = "rails console" }
+	}
+})
 
 -- ===============================
 -- Miser Setup
